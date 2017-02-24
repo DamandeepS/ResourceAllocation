@@ -41,3 +41,27 @@
     .main-container .svg-container .modal span.input-group-addon {
         min-width: 100px;
     }
+
+    .main-container #loader {
+        display: inline-block;
+        position: absolute;
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 9999;
+        background: rgba(0,0,0,0.4);
+        display: none;
+    }
+    .main-container #loader .loader {
+        display: inline-block;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 9999;
+        height: 90px;
+        width: 90px;
+        transform: translate(-50%,-50%);
+        background: url("./loader-ring.svg");
+    }

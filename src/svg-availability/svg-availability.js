@@ -6,35 +6,39 @@ import "./bootstrap.js"
  /* eslint-disable */
 var container = (
     <div className="main-container">
-    <div className="svg-container" data-allocatable="true" data-allocated-id="">
-        <svg width="260px" height="210px">
-            <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-        </svg>
-    </div>
-    <div className="svg-container" data-allocatable="true" data-allocated-id="">
-        <svg width="260px" height="210px">
-            <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-        </svg>
-    </div>
-    <div className="svg-container" data-allocatable="true" data-allocated-id="">
-        <svg width="260px" height="210px">
-            <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-        </svg>
-    </div>
-    <div className="svg-container" data-allocatable="true" data-allocated-id="1361">
-        <svg width="100px" height="100px">
-            <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
-        </svg>
-    </div>
-    <div className="svg-container" data-allocatable="false" data-allocated-id="">
-        <svg width="100px" height="100px">
-            <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}> </rect>        </svg>
-    </div>
-    <div className="controls">
-        <input type="button" id="availability" className="btn btn-default" value="Show Availability"></input>
-    </div>
-    
-    <div id="modal"></div>
+        <div className="svg-container" data-allocatable="true" data-allocated-id="">
+            <svg width="260px" height="210px">
+                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
+            </svg>
+        </div>
+        <div className="svg-container" data-allocatable="true" data-allocated-id="">
+            <svg width="260px" height="210px">
+                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
+            </svg>
+        </div>
+        <div className="svg-container" data-allocatable="true" data-allocated-id="">
+            <svg width="260px" height="210px">
+                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
+            </svg>
+        </div>
+        <div className="svg-container" data-allocatable="true" data-allocated-id="1361">
+            <svg width="100px" height="100px">
+                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
+            </svg>
+        </div>
+        <div className="svg-container" data-allocatable="false" data-allocated-id="">
+            <svg width="100px" height="100px">
+                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}> </rect>        </svg>
+        </div>
+        <div className="controls">
+            <input type="button" id="availability" className="btn btn-default" value="Show Availability"></input>
+        </div>
+        
+        <div id="modal"></div>
+
+        <div id="loader">
+            <div className="loader"></div>
+        </div>
 </div>);
 
 class SvgAvailability extends Component {
@@ -165,7 +169,7 @@ class SvgAvailability extends Component {
             },
             deAllocate: function (customEvent) {
                 svgAvailability.selectedSvg = customEvent.detail.callerSvg;
-                var empId = $(customEvent.detail.callerSvg).data("allocated-id");
+                var empId = $(customEvent.detail.callerSvg).attr('data-allocated-id');
                 svgAvailability.modalJSX = (
                     <div data-modal-type="de-allocate" className="modal fade" role="dialog">
                         <div className="modal-dialog">
@@ -208,7 +212,7 @@ class SvgAvailability extends Component {
 
                 svgAvailability.modal.modal('show');
 
-                switch(svgAvailability.modal.data("modal-type")) {
+                switch(svgAvailability.modal.attr("data-modal-type")) {
                     case "unassigned": break;
                     case "assigned": break;
                     case "allocate": 
@@ -257,7 +261,9 @@ class SvgAvailability extends Component {
                     </div>
                 );
 
-                var assigned = (<h1>TEST</h1>);
+                var assigned = {};
+
+
 
                 console.log(svgAvailability.allocatableSvgs);
 
@@ -265,14 +271,16 @@ class SvgAvailability extends Component {
                 $(svgAvailability.allocatableSvgs).each(function () {
                     var $this = $(this);
                     $this.on("click", function() {
-                        if (svgAvailability.isAvailable(this)) {
+                        svgAvailability.selectedSvg = this;
+                        if (!svgAvailability.isAvailable(this)) {
                             svgAvailability.modalJSX=notAssigned;
-                        } else {
-                            svgAvailability.modalJSX=assigned;
-                        }
                             ReactDOM.render(svgAvailability.modalJSX, document.querySelector("#modal"));
                             svgAvailability.modal = $("#modal>div.modal");
                             svgAvailability.modal.modal('show');
+                        } else {
+                            // svgAvailability.modalJSX=assigned;
+                            svgAvailability.openSelectedSvgDetails();
+                        }
                     })
                 }) ///-----------------///
             },
@@ -307,14 +315,92 @@ class SvgAvailability extends Component {
                         reason = svgAvailability.modal.find("form #deallocate-reason").val();
                     svgAvailability.restoreOpacity();
                     svgAvailability.modal.modal('hide');
-
                 return false;
             },
-            "disablePropagation": function(e) {
-                e.stopPropagation();
-                e.preventDefault();
-            }
+            "openSelectedSvgDetails": function() {
+                $("#loader").show();
+                $.ajax({
+                     type: 'POST',
+                     headers  :{
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                     },
+                     // make sure you respect the same origin policy with this url:
+                    // http://en.wikipedia.org/wiki/Same_origin_policy
+                    url: 'http://localhost:8082/getEmployeeDetails.php',
+                    data: { 
+                        'action': 'getEmpDetails', 
+                        'empId': $(svgAvailability.selectedSvg).attr('data-allocated-id')
+                    },
+                    success: function(msg){
 
+                        $("#loader").hide();
+                        if(!msg) {
+                            svgAvailability.modalJSX = (
+                                <div id="infoModal" className="modal fade" role="dialog">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <button type="button" className="close" data-dismiss="modal">&times;</button>
+                                                <h4 className="modal-title">Resource Associated to Unknown Person</h4>
+                                            </div>
+                                            <div className="modal-body">
+                                                <h5>We could not find the information for EmpID={$(svgAvailability.selectedSvg).attr('data-allocated-id')}</h5>
+                                            </div>
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                            } else {
+                            msg = JSON.parse(msg)
+                            console.log(msg);
+
+                            var rows = [];
+                            for(var i in msg)
+                            {
+                                if(!msg[i]=="") //only show properties with available value
+                                rows.push(
+                                    <tr key={i} >
+                                        <td className="active">{i}</td>
+                                        <td>{msg[i]}</td>
+                                    </tr>);
+                            }
+
+                            svgAvailability.modalJSX = (
+                                <div id="infoModal" className="modal fade" role="dialog">
+                                    <div className="modal-dialog">
+                                        <div className="modal-content">
+                                            <div className="modal-header">
+                                                <button type="button" className="close" data-dismiss="modal">&times;</button>
+                                                <h4 className="modal-title">Resource Associated to {msg.emp_firstname + " " + msg.emp_lastname}</h4>
+                                            </div>
+                                            <div className="modal-body">
+                                                <table className="table table-striped table-bordered table-hover">
+                                                    <tbody>
+                                                    {rows}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="modal-footer">
+                                                <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        }
+
+                        ReactDOM.render(svgAvailability.modalJSX, document.querySelector("#modal"));
+
+                        $("#modal>div.modal").modal("show");
+                    },
+                    'error': function() {
+                         $("#loader").hide();
+                    }
+                 })
+            }
 
         }
 

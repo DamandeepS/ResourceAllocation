@@ -21,6 +21,10 @@
         background: url("edit-icon.png");
         background-size: cover;
     }
+
+    .main-container .svg-container[data-allocatable="true"] svg {
+        cursor: help;
+    }
     
     .main-container div.controls {
         position: absolute;

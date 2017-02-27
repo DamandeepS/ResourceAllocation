@@ -28,7 +28,8 @@ var container = (
         </div>
         <div className="svg-container" data-allocatable="false" data-allocated-id="">
             <svg width="100px" height="100px">
-                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}> </rect>        </svg>
+                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}> </rect>
+            </svg>
         </div>
         <div className="controls">
             <input type="button" id="availability" className="btn btn-default" value="Show Availability"></input>
@@ -55,7 +56,6 @@ class SvgAvailability extends Component {
             'showAvailable': false,
             'selectedSvg': null,
             'allocatableSvgs': [],
-            'modalJSX': null,
             'modal': null,
             'isAvailable': function (svgParent) {
                 return ($(svgParent).attr("data-allocated-id").toString()!="");
@@ -137,89 +137,54 @@ class SvgAvailability extends Component {
             },
             allocate: function(customEvent) {
                 svgAvailability.selectedSvg = customEvent.detail.callerSvg;
-                svgAvailability.modalJSX = (
-                    <div data-modal-type="de-allocate" className="modal fade" role="dialog">
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <form onSubmit={svgAvailability.allocateSubmit}>
-                                    <div className="modal-header">
-                                        <button type="button" className="close" data-dismiss="modal">&times;</button>
-                                        <h4 className="modal-title">Allocate</h4>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="input-group">
-                                            <span className="input-group-addon" id="basic-addon1">Emp Id*</span>
-                                            <input type="text" id="allocate-emp-id" placeholder="example: 1001" name="allocate-emp-id" className="form-control" aria-describedby="basic-addon1" required></input>
-                                        </div>
-                                        <div className="input-group">
-                                            <span className="input-group-addon" id="basic-addon2">Comments</span>
-                                            <input id="allocate-comments" aria-describedby="basic-addon2" className="form-control" ></input>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="submit" className="btn btn-primary">Allocate</button>
-                                        <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                    </div>
-                                </form>
+
+                var modalHeader = <h4 className="modal-title">Allocate</h4>,
+                    modalBody = (
+                            <div>
+                                <div className="input-group">
+                                    <span className="input-group-addon" id="basic-addon1">Emp Id*</span>
+                                    <input type="text" id="allocate-emp-id" placeholder="example: 1001" name="allocate-emp-id" className="form-control" aria-describedby="basic-addon1" required></input>
+                                </div>
+                                <div className="input-group">
+                                    <span className="input-group-addon" id="basic-addon2">Comments</span>
+                                    <input id="allocate-comments" aria-describedby="basic-addon2" className="form-control" ></input>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    );
-                svgAvailability.renderModal();
+                        ),
+                    submitBtnName = "Allocate",
+                    cancelBtnName = "Close",
+                    submitCallback = svgAvailability.allocateSubmit;
+
+                Modal.createFormModal(modalHeader, modalBody, submitBtnName, cancelBtnName, submitCallback);
             },
             deAllocate: function (customEvent) {
                 svgAvailability.selectedSvg = customEvent.detail.callerSvg;
                 var empId = $(customEvent.detail.callerSvg).attr('data-allocated-id');
-                svgAvailability.modalJSX = (
-                    <div data-modal-type="de-allocate" className="modal fade" role="dialog">
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <form onSubmit={svgAvailability.deAllocateSubmit}>
-                                    <div className="modal-header">
-                                        <button type="button" className="close" data-dismiss="modal">&times;</button>
-                                        <h4 className="modal-title">De-allocate</h4>
-                                    </div>
-                                    <div className="modal-body">
-                                        <div className="input-group">
-                                            <span className="input-group-addon" id="basic-addon1">Assigned To</span>
-                                            <input readOnly type="text" id="deallocate-emp-id" placeholder="example: 1001" value={empId} name="deallocate-emp-id" className="form-control" aria-describedby="basic-addon1" required></input>
-                                        </div>
-                                        <br/>
-                                        <div className="input-group">
-                                            <span className="input-group-addon" id="basic-addon1">Approval*</span>
-                                            <input type="file" id="deallocate-approval" name="deallocate-approval" className="form-control" aria-describedby="basic-addon1" required></input>
-                                        </div>
-                                        <div className="input-group">
-                                            <span className="input-group-addon" id="basic-addon1">Reason*</span>
-                                            <input type="text" id="deallocate-reason" placeholder="Reason for deallocation" name="deallocate-reason" className="form-control" aria-describedby="basic-addon1" required></input>
-                                        </div>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="submit" className="btn btn-primary">De-Allocate</button>
-                                        <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                    </div>
-                                </form>
+
+                var modalHeader = <h4 className="modal-title">De-allocate</h4>,
+                    modalBody = (
+                            <div>
+                                <div className="input-group">
+                                    <span className="input-group-addon" id="basic-addon1">Assigned To</span>
+                                    <input readOnly type="text" id="deallocate-emp-id" placeholder="example: 1001" value={empId} name="deallocate-emp-id" className="form-control" aria-describedby="basic-addon1" required></input>
+                                </div>
+                                <br/>
+                                <div className="input-group">
+                                    <span className="input-group-addon" id="basic-addon1">Approval*</span>
+                                    <input type="file" id="deallocate-approval" name="deallocate-approval" className="form-control" aria-describedby="basic-addon1" required></input>
+                                </div>
+                                <div className="input-group">
+                                    <span className="input-group-addon" id="basic-addon1">Reason*</span>
+                                    <input type="text" id="deallocate-reason" placeholder="Reason for deallocation" name="deallocate-reason" className="form-control" aria-describedby="basic-addon1" required></input>
+                                </div>
                             </div>
-                        </div>
-                    </div>);
-                svgAvailability.renderModal();
+                        ),
+                    submitBtnName = "De Allocate",
+                    cancelBtnName = "Close",
+                    submitCallback = svgAvailability.deAllocateSubmit;
+
+                Modal.createFormModal(modalHeader, modalBody, submitBtnName, cancelBtnName, submitCallback);
             },
-            'renderModal': function() {
-                ReactDOM.render(svgAvailability.modalJSX, document.querySelector("#modal"));
-
-
-                svgAvailability.modal = $("#modal>div.modal");
-
-                svgAvailability.modal.modal('show');
-
-                switch(svgAvailability.modal.attr("data-modal-type")) {
-                    case "unassigned": break;
-                    case "assigned": break;
-                    case "allocate": 
-
-                }
-            }
-            ,
             restoreOpacity: function() {
                 $(svgAvailability.allocatableSvgs).each(function (){
                     $(this).find("svg").css("opacity",1);
@@ -240,64 +205,35 @@ class SvgAvailability extends Component {
             },
             initializeSvgInformation: function () {
                 svgAvailability.calculateSvgAvailability();
-                
-                var notAssigned = ( 
-                    <div id="notAssignedModal" className="modal fade" role="dialog">
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                    <div className="modal-header">
-                                        <button type="button" className="close" data-dismiss="modal">&times;</button>
-                                        <h4 className="modal-title">Unassigned Resource</h4>
-                                    </div>
-                                    <div className="modal-body">
-                                        <h5>This Resource is not assigned to Anyone.</h5>
-                                        <p>Available</p>
-                                    </div>
-                                    <div className="modal-footer">
-                                        <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                    </div>
-                            </div>
-                        </div>
-                    </div>
-                );
-
-                var assigned = {};
-
-
-
-                console.log(svgAvailability.allocatableSvgs);
-
 
                 $(svgAvailability.allocatableSvgs).each(function () {
                     var $this = $(this);
                     $this.on("click", function() {
                         svgAvailability.selectedSvg = this;
                         if (!svgAvailability.isAvailable(this)) {
-                            svgAvailability.modalJSX=notAssigned;
-                            ReactDOM.render(svgAvailability.modalJSX, document.querySelector("#modal"));
-                            svgAvailability.modal = $("#modal>div.modal");
-                            svgAvailability.modal.modal('show');
+                            Modal.createNormalModal(<h4 className="modal-title">Unassigned Resource</h4>,(
+                                <div>
+                                    <h5>This Resource is not assigned to Anyone.</h5>
+                                    <p>Available to allocate</p>
+                                </div>
+                                ));
                         } else {
-                            // svgAvailability.modalJSX=assigned;
                             svgAvailability.openSelectedSvgDetails();
                         }
                     })
-                }) ///-----------------///
-            },
-            showInfoForSVG:function(e) {
-
+                });
             },
             "allocateSubmit": function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                 var empId = svgAvailability.modal.find("#allocate-emp-id").val();
+                 var empId = Modal._modal().find("#allocate-emp-id").val();
                     if(!/^\d+$/.test(empId)) {
                         alert("Emp Id should be number only");
                         return false;
                     }
                     $(svgAvailability.selectedSvg).attr('data-allocated-id', empId);
                     svgAvailability.restoreOpacity();
-                    svgAvailability.modal.modal('hide');
+                    Modal._modal().modal('hide');
 
                 return false;
             },
@@ -305,16 +241,16 @@ class SvgAvailability extends Component {
                 e.stopPropagation();
                 e.preventDefault();
                 
-                var empId = svgAvailability.modal.find("#deallocate-emp-id").val();
+                var empId = Modal._modal().find("#deallocate-emp-id").val();
                     if(!/^\d+$/.test(empId)) {
                         alert("Emp Id should be number only");
                         return false;
                     }
                     $(svgAvailability.selectedSvg).attr('data-allocated-id', "");
-                    var file = svgAvailability.modal.find("form #deallocate-approval").val(),
-                        reason = svgAvailability.modal.find("form #deallocate-reason").val();
+                    var file = Modal._modal().find("form #deallocate-approval").val(),
+                        reason = Modal._modal().find("form #deallocate-reason").val();
                     svgAvailability.restoreOpacity();
-                    svgAvailability.modal.modal('hide');
+                    Modal._modal().modal('hide');
                 return false;
             },
             "openSelectedSvgDetails": function() {
@@ -332,72 +268,49 @@ class SvgAvailability extends Component {
                         'empId': $(svgAvailability.selectedSvg).attr('data-allocated-id')
                     },
                     success: function(msg){
-
                         $("#loader").hide();
+
+                        var modalHeader= {},
+                            modalBody= {};
+
                         if(!msg) {
-                            svgAvailability.modalJSX = (
-                                <div id="infoModal" className="modal fade" role="dialog">
-                                    <div className="modal-dialog">
-                                        <div className="modal-content">
-                                            <div className="modal-header">
-                                                <button type="button" className="close" data-dismiss="modal">&times;</button>
-                                                <h4 className="modal-title">Resource Associated to Unknown Person</h4>
-                                            </div>
-                                            <div className="modal-body">
-                                                <h5>We could not find the information for EmpID={$(svgAvailability.selectedSvg).attr('data-allocated-id')}</h5>
-                                            </div>
-                                            <div className="modal-footer">
-                                                <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
+
+                            modalHeader=  <h4 className="modal-title">Resource Associated to Unknown Person</h4>;
+                            modalBody= <h5>We could not find the information for EmpID={$(svgAvailability.selectedSvg).attr('data-allocated-id')}</h5>;
+
                             } else {
-                            msg = JSON.parse(msg)
-                            console.log(msg);
 
-                            var rows = [];
-                            for(var i in msg)
-                            {
-                                if(!msg[i]=="") //only show properties with available value
-                                rows.push(
-                                    <tr key={i} >
-                                        <td className="active">{i}</td>
-                                        <td>{msg[i]}</td>
-                                    </tr>);
-                            }
+                                modalHeader= <h4 className="modal-title">Resource Associated to {msg.emp_firstname + " " + msg.emp_lastname}</h4>;
 
-                            svgAvailability.modalJSX = (
-                                <div id="infoModal" className="modal fade" role="dialog">
-                                    <div className="modal-dialog">
-                                        <div className="modal-content">
-                                            <div className="modal-header">
-                                                <button type="button" className="close" data-dismiss="modal">&times;</button>
-                                                <h4 className="modal-title">Resource Associated to {msg.emp_firstname + " " + msg.emp_lastname}</h4>
-                                            </div>
-                                            <div className="modal-body">
-                                                <table className="table table-striped table-bordered table-hover">
-                                                    <tbody>
-                                                    {rows}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div className="modal-footer">
-                                                <button type="button" className="btn btn-default" data-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
+                                msg = JSON.parse(msg)
+
+                                var rows = [];
+                                for(var i in msg)
+                                {
+                                    if(!msg[i]=="") //only show properties with available value
+                                    rows.push(
+                                        <tr key={i} >
+                                            <td className="active">{i}</td>
+                                            <td>{msg[i]}</td>
+                                        </tr>);
+                                }
+                                modalBody= (
+                                    <table className="table table-striped table-bordered table-hover">
+                                        <tbody>
+                                        {rows}
+                                        </tbody>
+                                    </table>
+                                    );
+
+
                         }
 
-                        ReactDOM.render(svgAvailability.modalJSX, document.querySelector("#modal"));
-
-                        $("#modal>div.modal").modal("show");
+                        Modal.createNormalModal(modalHeader, modalBody);
                     },
                     'error': function() {
                          $("#loader").hide();
+
+                        Modal.createNormalModal(<h4>Error</h4>, <p>Error</p>);
                     }
                  })
             }
@@ -405,6 +318,77 @@ class SvgAvailability extends Component {
         }
 
         svgAvailability.initialize();
+
+        var Modal= {
+            'modalJSX': {},
+            'createFormModal': function(headerJSX, bodyJSX, submitBtnName, cancelBtnName, submitCallback, cancelCallback) {
+                var primaryBtn = {};
+                Modal.modalJSX = (
+                    <div data-modal-type="de-allocate" className="modal fade" role="dialog">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <form onSubmit={submitCallback}>
+                                    <div className="modal-header">
+                                        <button type="button" className="close" data-dismiss="modal">&times;</button>
+                                        {headerJSX}
+                                    </div>
+                                    <div className="modal-body">
+                                        {bodyJSX}
+                                    </div>
+                                    <div className="modal-footer">
+                                        <button type="submit" className="btn btn-primary">{submitBtnName || 'Submit'}</button>
+                                        <button type="button" className="btn btn-default" data-dismiss="modal" onClick={cancelCallback}>{cancelBtnName||'Close'}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+                Modal.showModal();
+            },
+            'createNormalModal': function(headerJSX, bodyJSX, primaryBtnName, cancelBtnName, primaryCallback, cancelCallback) {
+                var primaryBtn = {};
+                if (primaryCallback) {
+                    primaryBtn = <button type="submit" className="btn btn-primary" onClick={primaryCallback}>{primaryBtnName || 'Submit'}</button>
+                }
+                Modal.modalJSX = (
+
+                    <div data-modal-type="de-allocate" className="modal fade" role="dialog">
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <form onSubmit={svgAvailability.allocateSubmit}>
+                                    <div className="modal-header">
+                                        <button type="button" className="close" data-dismiss="modal">&times;</button>
+                                        {headerJSX}
+                                    </div>
+                                    
+                                    <div className="modal-body">
+                                        {bodyJSX}
+                                    </div>
+                                    <div className="modal-footer">
+                                        {primaryCallback}
+                                        <button type="button" className="btn btn-default" data-dismiss="modal" onClick={cancelCallback}>{cancelBtnName||'Close'}</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                );
+
+                Modal.showModal();
+            },
+            'showModal': function() {
+                ReactDOM.render(Modal.modalJSX, document.querySelector('#modal'));
+                $('#modal>div.modal').modal('show');
+            },
+            'closeModal': function() {
+                $('#modal>div.modal').modal('hide');
+            },
+            '_modal': function() {
+                return $("#modal>div.modal");
+            }
+        }
 
     })
  })()

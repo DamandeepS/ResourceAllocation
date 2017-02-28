@@ -8,11 +8,15 @@ var container = (
     <div className="main-container">
         <div className="svg-container">
             <svg width="100vw" height="100vh">
-                <polygon  data-allocatable="true" data-allocated-id="" points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-
-                  <rect data-allocatable="true" data-allocated-id="1361" x="0" y="0" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
- <rect data-allocatable="false" data-allocated-id="" x="100" y="20" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
-
+            <g  data-allocatable="true" data-allocated-id="" >
+                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
+            </g>
+            <g data-allocatable="true" data-allocated-id="1361">
+              <rect x="0" y="0" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
+              </g>
+            <g  data-allocatable="false" data-allocated-id="" >
+                <rect x="100" y="20" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
+            </g>
             </svg>
         </div>
         <div className="controls">
@@ -46,14 +50,21 @@ class SvgAvailability extends Component {
             },
             'calculateSvgAvailability': function() {
                 svgAvailability.allocatableSvgs = $(".main-container > .svg-container > svg  *[data-allocatable='true']");
-                console.log(svgAvailability.allocatableSvgs);
             },
             'addEditor': function() {
-                svgAvailability.calculateSvgAvailability();
-                $.each(svgAvailability.allocatableSvgs, function(index, svgParent) {
-                    var edit = (<rect x="0" y="0" rx="20" ry="20" width="40px" height="40px" style={{'fill':'#000','stroke':'#fff','strokeWidth':'1','zIndex': 9999}}/>)
-        
-                    edit = ReactDOM.render(edit, svgParent)
+               var svgns = "http://www.w3.org/2000/svg";
+                $.each(svgAvailability.allocatableSvgs, function (index, svgParent) {
+                        var width = svgParent.getBoundingClientRect().width + svgParent.getBoundingClientRect().left - 35,
+                            edit = document.createElementNS(svgns, 'rect');
+                        edit.setAttributeNS(null, 'x', width);
+                        edit.setAttributeNS(null, 'y', '5');
+                        edit.setAttributeNS(null, 'data-btn', 'edit');
+                        edit.setAttributeNS(null, 'rx', '10');
+                        edit.setAttributeNS(null, 'ry', '10');
+                        edit.setAttributeNS(null, 'height', '30');
+                        edit.setAttributeNS(null, 'width', '30');
+                        edit.setAttributeNS(null, 'style', "fill:#000;stroke:#fff;stroke-width:1;z-index: 9999");
+                        svgParent.appendChild(edit);
                     edit = $(edit);
                     edit.on("click", function (e) {
                         var mainContainer = $(".main-container")[0];
@@ -74,11 +85,10 @@ class SvgAvailability extends Component {
                         e.preventDefault();
                         e.stopPropagation();
                     })
-                    svgParent.append(edit[0]);
                     });
             },
             'removeEditor': function() {
-                svgAvailability.allocatableSvgs.find("button.edit").remove();
+                    svgAvailability.allocatableSvgs.find("rect[data-btn='edit']").remove();
             },
             'initialize': function() {
                 svgAvailability.initializeAvailability();
@@ -95,7 +105,6 @@ class SvgAvailability extends Component {
                                 if (!svgAvailability.isAvailable(svg)) 
                                     unavailableSvgs.push(svg);
                             });
-                            console.log(unavailableSvgs);
                             var opacity = "1";
                             if (svgAvailability.showAvailable) {
                                 svgAvailability.addEditor();
@@ -107,7 +116,7 @@ class SvgAvailability extends Component {
                             }
 
                             $.each(unavailableSvgs, function(index, svg) {
-                                $(svg).find('svg').css("opacity",opacity);
+                                $(svg).find('*:not(rect[data-btn])').css("opacity",opacity);
                             });
                             
                             $(this).toggleClass("active");
@@ -172,20 +181,19 @@ class SvgAvailability extends Component {
             },
             restoreOpacity: function() {
                 $(svgAvailability.allocatableSvgs).each(function (){
-                    $(this).find("svg").css("opacity",1);
+                    $(this).find("*:not(rect[data-btn])").css("opacity",1);
                 })
 
 
                 svgAvailability.calculateSvgAvailability();
                 var unavailableSvgs = [];
-                console.log(svgAvailability.allocatableSvgs);
                 $.each(svgAvailability.allocatableSvgs, function(index, svg) {
                     if (!svgAvailability.isAvailable(svg)) 
                         unavailableSvgs.push(svg);
                 });
-                console.log(unavailableSvgs);
                 $.each(unavailableSvgs, function(index, svg) {
-                    $(svg).find('svg').css("opacity",".5");
+                    console.log($(svg).find('*:not(rect[data-btn])'));
+                    $(svg).find('*:not(rect[data-btn])').css("opacity",".5");
                 });
             },
             initializeSvgInformation: function () {

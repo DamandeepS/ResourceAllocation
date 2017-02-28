@@ -6,29 +6,13 @@ import "./bootstrap.js"
  /* eslint-disable */
 var container = (
     <div className="main-container">
-        <div className="svg-container" data-allocatable="true" data-allocated-id="">
-            <svg width="260px" height="210px">
-                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-            </svg>
-        </div>
-        <div className="svg-container" data-allocatable="true" data-allocated-id="">
-            <svg width="260px" height="210px">
-                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-            </svg>
-        </div>
-        <div className="svg-container" data-allocatable="true" data-allocated-id="">
-            <svg width="260px" height="210px">
-                <polygon points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
-            </svg>
-        </div>
-        <div className="svg-container" data-allocatable="true" data-allocated-id="1361">
-            <svg width="100px" height="100px">
-                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
-            </svg>
-        </div>
-        <div className="svg-container" data-allocatable="false" data-allocated-id="">
-            <svg width="100px" height="100px">
-                <rect x="0" y="0" rx="20" ry="20" width="100%" height="100%" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}> </rect>
+        <div className="svg-container">
+            <svg width="100vw" height="100vh">
+                <polygon  data-allocatable="true" data-allocated-id="" points="200,10 250,190 160,210" style={{'fill':"#c5f",'stroke':"rgb(123,12,43)",'strokeWidth':'1'}} > </polygon>
+
+                  <rect data-allocatable="true" data-allocated-id="1361" x="0" y="0" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
+ <rect data-allocatable="false" data-allocated-id="" x="100" y="20" rx="20" ry="20" width="100px" height="100px" style={{'fill':'red','stroke':'rgb(123,12,43)','strokeWidth':'1'}}></rect>
+
             </svg>
         </div>
         <div className="controls">
@@ -50,7 +34,6 @@ class SvgAvailability extends Component {
 
  (function() {
     $(document).ready(function() {
-        // alert();
 
         var svgAvailability = {
             'showAvailable': false,
@@ -62,15 +45,16 @@ class SvgAvailability extends Component {
 
             },
             'calculateSvgAvailability': function() {
-                svgAvailability.allocatableSvgs = $(".main-container > .svg-container[data-allocatable='true']");
+                svgAvailability.allocatableSvgs = $(".main-container > .svg-container > svg  *[data-allocatable='true']");
+                console.log(svgAvailability.allocatableSvgs);
             },
             'addEditor': function() {
                 svgAvailability.calculateSvgAvailability();
                 $.each(svgAvailability.allocatableSvgs, function(index, svgParent) {
-                    var edit = document.createElement("button");
-                    edit.classList = "edit";
+                    var edit = (<rect x="0" y="0" rx="20" ry="20" width="40px" height="40px" style={{'fill':'#000','stroke':'#fff','strokeWidth':'1','zIndex': 9999}}/>)
+        
+                    edit = ReactDOM.render(edit, svgParent)
                     edit = $(edit);
-
                     edit.on("click", function (e) {
                         var mainContainer = $(".main-container")[0];
                         if (!svgAvailability.isAvailable(svgParent)) {
@@ -111,6 +95,7 @@ class SvgAvailability extends Component {
                                 if (!svgAvailability.isAvailable(svg)) 
                                     unavailableSvgs.push(svg);
                             });
+                            console.log(unavailableSvgs);
                             var opacity = "1";
                             if (svgAvailability.showAvailable) {
                                 svgAvailability.addEditor();
